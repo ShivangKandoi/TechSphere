@@ -1,0 +1,5 @@
+node_modules
+.env
+ver-1-7a8c3-firebase-adminsdk-cig5r-7ea17991ff.json
+uploads/*
+!uploads/.gitkeep 
