@@ -12,7 +12,7 @@ const logger = require('./middleware/logger');
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://techsphere-v2.vercel.app', 'http://localhost:3000']
+    ? ['https://tech-sphere-seven.vercel.app', 'http://localhost:3000']
     : ['http://localhost:3000'],
   credentials: true
 }));
@@ -20,6 +20,12 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 app.use(apiLimiter);
 app.use(logger);
+
+// Add this after your existing logger middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Initialize Firebase Admin
 admin.initializeApp({

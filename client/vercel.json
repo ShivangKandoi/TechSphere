@@ -10,5 +10,16 @@
         "CI": "false",
         "REACT_APP_API_URL": "https://techsphere-kmj0.onrender.com"
       }
-    }
+    },
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "https://techsphere-kmj0.onrender.com"
+          }
+        ]
+      }
+    ]
   }

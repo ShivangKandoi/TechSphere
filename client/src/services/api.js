@@ -2,7 +2,7 @@ import axios from 'axios';
 import { auth } from '../config/firebase';
 
 const api = axios.create({
-  baseURL: `${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api`,
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -27,7 +27,7 @@ api.interceptors.request.use(async (config) => {
 // Auth methods
 api.register = async (userData) => {
   try {
-    const response = await api.post('/auth/register', userData);
+    const response = await api.post('/api/auth/register', userData);
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -36,7 +36,7 @@ api.register = async (userData) => {
 
 api.getProfile = async () => {
   try {
-    const response = await api.get('/auth/profile');
+    const response = await api.get('/api/auth/profile');
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -46,7 +46,7 @@ api.getProfile = async () => {
 // Get news
 api.getNews = async () => {
   try {
-    const response = await api.get('/news');
+    const response = await api.get('/api/news');
     return response.data;
   } catch (error) {
     console.error('Error fetching news:', error);
@@ -57,7 +57,7 @@ api.getNews = async () => {
 // Get webstore tools
 api.getTools = async () => {
   try {
-    const response = await api.get('/webstore');
+    const response = await api.get('/api/webstore');
     return response.data;
   } catch (error) {
     console.error('Error fetching tools:', error);
