@@ -5,21 +5,12 @@
         "destination": "/index.html"
       }
     ],
+    "env": {
+      "REACT_APP_API_URL": "https://techsphere-kmj0.onrender.com"
+    },
     "build": {
       "env": {
-        "CI": "false",
-        "REACT_APP_API_URL": "https://techsphere-kmj0.onrender.com"
+        "CI": "false"
       }
-    },
-    "headers": [
-      {
-        "source": "/(.*)",
-        "headers": [
-          {
-            "key": "Access-Control-Allow-Origin",
-            "value": "https://techsphere-kmj0.onrender.com"
-          }
-        ]
-      }
-    ]
+    }
   }

@@ -5,7 +5,8 @@ const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000',
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  timeout: 10000 // 10 second timeout
 });
 
 // Add request interceptor to include auth token
@@ -23,6 +24,20 @@ api.interceptors.request.use(async (config) => {
 }, (error) => {
   return Promise.reject(error);
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.message
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Auth methods
 api.register = async (userData) => {
