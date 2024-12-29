@@ -25,22 +25,49 @@ admin.initializeApp({
   })
 });
 
-// Swagger Documentation
-const swaggerDocs = swaggerJsDoc(options);
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
-
-// Routes - Add /api prefix to all routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/projects', require('./routes/projects'));
-app.use('/api/news', require('./routes/news'));
-app.use('/api/tools', require('./routes/tools'));
-app.use('/api/webstore', require('./routes/webstore'));
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to TechSphere API' });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// API routes
+const apiRouter = express.Router();
+
+// API root route
+apiRouter.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to TechSphere API',
+    version: '1.0',
+    endpoints: {
+      auth: '/api/auth',
+      projects: '/api/projects',
+      news: '/api/news',
+      tools: '/api/tools',
+      webstore: '/api/webstore',
+      admin: '/api/admin'
+    }
+  });
+});
+
+// Mount routes on the API router
+apiRouter.use('/auth', require('./routes/auth'));
+apiRouter.use('/admin', require('./routes/admin'));
+apiRouter.use('/projects', require('./routes/projects'));
+apiRouter.use('/news', require('./routes/news'));
+apiRouter.use('/tools', require('./routes/tools'));
+apiRouter.use('/webstore', require('./routes/webstore'));
+
+// Mount API router at /api
+app.use('/api', apiRouter);
+
+// Swagger Documentation
+const swaggerDocs = swaggerJsDoc(options);
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -50,7 +77,20 @@ app.use((err, req, res, next) => {
 
 // 404 handler for undefined routes
 app.use((req, res) => {
-  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+  res.status(404).json({ 
+    message: `Route ${req.originalUrl} not found`,
+    availableRoutes: [
+      '/',
+      '/api/auth',
+      '/api/projects',
+      '/api/news',
+      '/api/tools',
+      '/api/webstore',
+      '/api/admin',
+      '/health',
+      '/api-docs'
+    ]
+  });
 });
 
 module.exports = app; 
