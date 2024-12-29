@@ -9,17 +9,14 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 const logger = require('./middleware/logger');
 
+// Parse allowed origins from environment variable
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:3000'];
+
 // Middleware
 app.use(cors({
-  origin: [
-    'https://tech-sphere-seven.vercel.app',
-    'http://localhost:3000',
-    'https://tech-sphere-seven.vercel.app/',
-    'http://tech-sphere-seven.vercel.app',
-    'http://tech-sphere-seven.vercel.app/',
-    undefined,
-    'null'
-  ],
+  origin: [...allowedOrigins, undefined, 'null'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [
@@ -37,7 +34,10 @@ app.use(cors({
 
 // Add security headers
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header(
     'Access-Control-Allow-Headers',
