@@ -1,29 +1,37 @@
 require('dotenv').config();
 const admin = require('firebase-admin');
-const serviceAccount = require('../ver-1-7a8c3-firebase-adminsdk-cig5r-7ea17991ff.json');
+const serviceAccount = require('../config/serviceAccountKey.json');
 
 // Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: process.env.FIREBASE_PROJECT_ID
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
-async function listAllUsers() {
+async function setAdminClaim(email) {
   try {
-    const listUsersResult = await admin.auth().listUsers();
-    console.log('All Users:');
-    listUsersResult.users.forEach((userRecord) => {
-      console.log('User:', {
-        uid: userRecord.uid,
-        email: userRecord.email,
-        displayName: userRecord.displayName
-      });
+    // Get user by email
+    const user = await admin.auth().getUserByEmail(email);
+    
+    // Set admin claim
+    await admin.auth().setCustomUserClaims(user.uid, {
+      admin: true
     });
-    process.exit(0);
+
+    console.log(`Successfully set admin claim for user: ${email}`);
   } catch (error) {
-    console.error('Error listing users:', error);
-    process.exit(1);
+    console.error('Error setting admin claim:', error);
+  } finally {
+    process.exit();
   }
 }
 
-listAllUsers(); 
+// Add this to package.json scripts: "create-admin": "node scripts/createAdmin.js admin@techsphere.com"
+const email = process.argv[2];
+if (!email) {
+  console.error('Please provide an email address');
+  process.exit(1);
+}
+
+setAdminClaim(email); 

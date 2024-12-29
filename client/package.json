@@ -1,5 +1,5 @@
 {
-  "name": "techsphere-client",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -43,7 +43,8 @@
   "devDependencies": {
     "autoprefixer": "^10.4.15",
     "postcss": "^8.4.29",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^3.3.3",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   },
   "postcss": {
     "plugins": {

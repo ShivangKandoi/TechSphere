@@ -1,16 +1,17 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { 
-  signInWithEmailAndPassword,
+import { auth } from '../config/firebase';
+import {
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
-import { authService } from '../services/api';
+import authService from '../services/authService';
+import { toast } from 'react-hot-toast';
 
-const AuthContext = createContext();
+const AuthContext = createContext({});
 
 export function useAuth() {
   return useContext(AuthContext);
@@ -22,19 +23,15 @@ export function AuthProvider({ children }) {
 
   async function signup(email, password, username) {
     try {
-      // Create the Firebase user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Get the ID token
       const token = await userCredential.user.getIdToken();
       
-      // Register in our backend with the token
       await authService.register({
         email,
         username,
         token
       });
-
+      
       return userCredential;
     } catch (error) {
       console.error('Signup error:', error);
@@ -42,14 +39,8 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function login(email, password) {
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      return result;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+  function login(email, password) {
+    return signInWithEmailAndPassword(auth, email, password);
   }
 
   async function loginWithGoogle() {
@@ -64,12 +55,22 @@ export function AuthProvider({ children }) {
       await authService.register({
         email: result.user.email,
         username: result.user.displayName || result.user.email.split('@')[0],
-        token
+        token,
+        photoURL: result.user.photoURL || '',
+        displayName: result.user.displayName || ''
       });
       
+      toast.success('Successfully logged in with Google!');
       return result;
     } catch (error) {
       console.error('Google login error:', error);
+      let errorMessage = 'Failed to login with Google';
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Login popup was closed';
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        errorMessage = 'Another popup is already open';
+      }
+      toast.error(errorMessage);
       throw error;
     }
   }
@@ -82,15 +83,29 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          // Get the ID token with custom claims
+          // Get the token result to check admin status
           const tokenResult = await user.getIdTokenResult();
-          // Add isAdmin to the user object
-          user.isAdmin = tokenResult.claims.admin === true;
+          // Get additional user data from our backend
+          const userData = await authService.getProfile();
+          
+          setCurrentUser({ 
+            ...user, 
+            ...userData,
+            isAdmin: tokenResult.claims.admin === true || userData.isAdmin === true 
+          });
+          
+          console.log('User data loaded:', {
+            tokenClaims: tokenResult.claims,
+            userData: userData,
+            isAdmin: tokenResult.claims.admin === true || userData.isAdmin === true
+          });
         } catch (error) {
-          console.error('Error getting token claims:', error);
+          console.error('Error fetching user profile:', error);
+          setCurrentUser(user);
         }
+      } else {
+        setCurrentUser(null);
       }
-      setCurrentUser(user);
       setLoading(false);
     });
 

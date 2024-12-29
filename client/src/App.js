@@ -9,31 +9,22 @@ import Projects from './pages/Projects';
 import WebStore from './pages/WebStore';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { useAuth } from './contexts/AuthContext';
-
-// Protected Route Component
-function ProtectedRoute({ children }) {
-  const { currentUser, loading } = useAuth();
-  
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  if (!currentUser) {
-    return <Navigate to="/login" />;
-  }
-  
-  return children;
-}
+import ProtectedRoute from './components/ProtectedRoute';
+import About from './pages/About';
+import CreateProject from './pages/CreateProject';
+import ProjectDetails from './components/projects/ProjectDetails';
+import ToolDetails from './components/webstore/ToolDetails';
+import NewsDetails from './components/news/NewsDetails';
+import Signup from './pages/Signup';
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <Router>
-          <div className="min-h-screen bg-white dark:bg-gray-900">
+    <Router>
+      <AuthProvider>
+        <ThemeProvider>
+          <div className="min-h-screen bg-gradient-dark text-white">
             <Navbar />
             <Routes>
               <Route path="/" element={<Home />} />
@@ -49,7 +40,7 @@ function App() {
               />
               <Route path="/webstore" element={<WebStore />} />
               <Route 
-                path="/profile/:id" 
+                path="/profile" 
                 element={
                   <ProtectedRoute>
                     <Profile />
@@ -60,17 +51,50 @@ function App() {
                 path="/admin"
                 element={
                   <ProtectedRoute>
-                    <Admin />
+                    <AdminRoute>
+                      <Admin />
+                    </AdminRoute>
                   </ProtectedRoute>
                 }
               />
+              <Route path="/about" element={<About />} />
+              <Route 
+                path="/projects/new" 
+                element={
+                  <ProtectedRoute>
+                    <CreateProject />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/projects/:id" 
+                element={
+                  <ProtectedRoute>
+                    <ProjectDetails />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/webstore/:id" element={<ToolDetails />} />
+              <Route path="/news/:id" element={<NewsDetails />} />
+              <Route path="/signup" element={<Signup />} />
             </Routes>
           </div>
           <Toaster position="top-right" />
-        </Router>
-      </ThemeProvider>
-    </AuthProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </Router>
   );
+}
+
+// Add this component to protect admin routes
+function AdminRoute({ children }) {
+  const { currentUser } = useAuth();
+  
+  if (!currentUser?.isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
 }
 
 export default App;

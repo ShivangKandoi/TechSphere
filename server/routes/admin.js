@@ -4,10 +4,10 @@ const User = require('../models/User');
 const Project = require('../models/Project');
 const Tool = require('../models/Tool');
 const News = require('../models/News');
-const { isAdmin } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 // Get all users
-router.get('/users', isAdmin, async (req, res) => {
+router.get('/users', authenticateToken, async (req, res) => {
   try {
     const users = await User.find().select('-password');
     res.json(users);
@@ -17,8 +17,13 @@ router.get('/users', isAdmin, async (req, res) => {
 });
 
 // Get dashboard stats
-router.get('/stats', isAdmin, async (req, res) => {
+router.get('/stats', authenticateToken, async (req, res) => {
   try {
+    // Verify user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: 'Unauthorized: Admin access required' });
+    }
+
     const [totalUsers, totalProjects, totalTools, totalNews] = await Promise.all([
       User.countDocuments(),
       Project.countDocuments(),
@@ -33,12 +38,13 @@ router.get('/stats', isAdmin, async (req, res) => {
       totalNews
     });
   } catch (error) {
+    console.error('Error fetching admin stats:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 // Make user admin
-router.put('/users/:userId/make-admin', isAdmin, async (req, res) => {
+router.put('/users/:userId/make-admin', authenticateToken, async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
       req.params.userId,
@@ -52,7 +58,7 @@ router.put('/users/:userId/make-admin', isAdmin, async (req, res) => {
 });
 
 // Remove admin privileges
-router.put('/users/:userId/remove-admin', isAdmin, async (req, res) => {
+router.put('/users/:userId/remove-admin', authenticateToken, async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
       req.params.userId,
@@ -66,7 +72,7 @@ router.put('/users/:userId/remove-admin', isAdmin, async (req, res) => {
 });
 
 // Delete user
-router.delete('/users/:userId', isAdmin, async (req, res) => {
+router.delete('/users/:userId', authenticateToken, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.userId);
     res.json({ message: 'User deleted successfully' });

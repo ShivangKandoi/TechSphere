@@ -13,7 +13,10 @@ const newsSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  thumbnail: String,
+  thumbnail: {
+    type: String,
+    default: 'https://via.placeholder.com/300x200?text=News+Article'
+  },
   category: {
     type: String,
     required: true,
@@ -37,5 +40,10 @@ const newsSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// Add indexes
+newsSchema.index({ author: 1, createdAt: -1 });
+newsSchema.index({ category: 1 });
+newsSchema.index({ views: -1 });
 
 module.exports = mongoose.model('News', newsSchema); 

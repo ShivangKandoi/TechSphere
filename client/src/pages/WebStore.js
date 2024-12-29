@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import ToolCard from '../components/webstore/ToolCard';
 
 function WebStore() {
   const { currentUser } = useAuth();
@@ -11,7 +12,8 @@ function WebStore() {
     name: '',
     description: '',
     category: 'Productivity',
-    accessLink: ''
+    accessLink: '',
+    thumbnail: ''
   });
   const [tools, setTools] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -58,7 +60,8 @@ function WebStore() {
         name: '',
         description: '',
         category: 'Productivity',
-        accessLink: ''
+        accessLink: '',
+        thumbnail: ''
       });
     } catch (error) {
       toast.error('Failed to add tool');
@@ -80,33 +83,100 @@ function WebStore() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-green-600 to-teal-700 text-white py-16">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Web Store
-            </h1>
-            <p className="text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
-              Discover and share the best tools to enhance your development workflow
-            </p>
-            {currentUser?.isAdmin && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowCreateModal(true)}
-                className="bg-white text-teal-600 px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition duration-300"
-              >
-                Add New Tool
-              </motion.button>
-            )}
-          </motion.div>
+      <div className="relative h-screen bg-gradient-to-r from-purple-600 to-indigo-700 text-white">
+        <div className="absolute inset-0 bg-pattern opacity-10"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
+                Developer Tools Hub
+              </h1>
+              <p className="text-xl md:text-2xl text-blue-100 mb-12 leading-relaxed">
+                Discover and share powerful tools to enhance your development workflow
+              </p>
+              {currentUser?.isAdmin && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowCreateModal(true)}
+                  className="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold text-lg
+                             shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1"
+                >
+                  Share Tool
+                </motion.button>
+              )}
+            </motion.div>
+          </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 dark:from-gray-900 to-transparent"></div>
+
+        {/* Floating Icons Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
+            <motion.div
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 10, 0]
+              }}
+              transition={{ duration: 5, repeat: Infinity }}
+              className="text-white/10 text-9xl"
+            >
+              ⚡
+            </motion.div>
+          </div>
+          <div className="absolute top-2/3 right-1/4">
+            <motion.div
+              animate={{
+                y: [0, 20, 0],
+                rotate: [0, -10, 0]
+              }}
+              transition={{ duration: 7, repeat: Infinity }}
+              className="text-white/10 text-8xl"
+            >
+              🛠️
+            </motion.div>
+          </div>
+          <div className="absolute bottom-1/4 right-1/3">
+            <motion.div
+              animate={{
+                y: [0, 15, 0],
+                rotate: [0, 5, 0]
+              }}
+              transition={{ duration: 6, repeat: Infinity }}
+              className="text-white/10 text-7xl"
+            >
+              💻
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <svg 
+            className="w-6 h-6 text-white opacity-75"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+        </motion.div>
+
+        {/* Gradient Overlay at Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-50 dark:from-gray-900 to-transparent"></div>
       </div>
 
       {/* Search and Filter Section */}
@@ -153,53 +223,15 @@ function WebStore() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {filteredTools.map((tool, index) => (
-            <motion.article
+          {filteredTools.map((tool) => (
+            <ToolCard
               key={tool._id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <span className="px-3 py-1 bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-300 rounded-full text-sm font-medium">
-                    {tool.category}
-                  </span>
-                  {currentUser?.isAdmin && (
-                    <button
-                      onClick={() => handleDelete(tool._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  {tool.name}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {tool.description}
-                </p>
-                <div className="flex justify-between items-center">
-                  <a
-                    href={tool.accessLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-teal-600 hover:text-teal-700 font-medium"
-                  >
-                    Access Tool →
-                  </a>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    Added by {tool.author?.username || 'Admin'}
-                  </span>
-                </div>
-              </div>
-            </motion.article>
+              tool={tool}
+              onDelete={handleDelete}
+              currentUser={currentUser}
+            />
           ))}
         </motion.div>
 
@@ -286,6 +318,22 @@ function WebStore() {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Thumbnail URL (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    name="thumbnail"
+                    value={toolForm.thumbnail}
+                    onChange={handleInputChange}
+                    className="mt-1 input w-full"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave empty for default thumbnail
+                  </p>
                 </div>
               </div>
               <div className="mt-6 flex justify-end space-x-3">

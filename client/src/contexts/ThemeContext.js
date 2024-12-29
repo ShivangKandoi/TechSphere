@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
@@ -7,27 +7,15 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }) {
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
-
+  // Always enforce dark mode
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
+    document.documentElement.classList.add('dark');
+  }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode(prev => !prev);
-  };
-
+  // Provide a simplified context value with dark mode always true
   const value = {
-    darkMode,
-    toggleDarkMode
+    darkMode: true,
+    toggleDarkMode: () => {} // No-op function since we don't allow toggling
   };
 
   return (
