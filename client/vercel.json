@@ -1,11 +1,14 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "build",
-  "framework": "create-react-app",
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ],
+    "build": {
+      "env": {
+        "CI": "false",
+        "REACT_APP_API_URL": "https://techsphere-kmj0.onrender.com"
+      }
     }
-  ]
-} 
+  }

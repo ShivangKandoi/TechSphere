@@ -10,7 +10,12 @@ const swaggerUI = require('swagger-ui-express');
 const logger = require('./middleware/logger');
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://techsphere-v2.vercel.app', 'http://localhost:3000']
+    : ['http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 app.use(apiLimiter);
